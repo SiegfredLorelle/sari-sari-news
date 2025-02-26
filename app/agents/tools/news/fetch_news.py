@@ -8,10 +8,10 @@ def fetch_news(source: str) -> List:
     Fetches news articles from a specific source using RSS feeds.
     
     Args:
-        source (str): Must be one of: "GMA", "TV5", "Philippine Daily Inquirer", 
+        source (str): Must be one of: "GMA", "Philippine Daily Inquirer", 
                      "Manila Bulletin", "ABS-CBN", "Rappler", "Philstar", 
                      "Manila Times", "BusinessWorld", "The Daily Tribune"
-    
+
     Returns:
         List of news articles from the specified source.
     """

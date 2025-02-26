@@ -5,9 +5,9 @@ import sys
 from app.agents.agent import initialize_agent
 
 def main():
-    st.title("🤖 Mr. Agent - Research Assistant")
+    st.title("🤖 SariSariNews: News from Your Neighborhood")
     agent = initialize_agent()
-    user_input = st.text_input("Ask Mr. Agent", placeholder="What's the latest news?")
+    user_input = st.text_input("Ask SariSariNews", placeholder="What's the latest news?")
 
     if st.button("Submit") and user_input:
         with st.spinner("Thinking..."):
