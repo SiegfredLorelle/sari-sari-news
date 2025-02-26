@@ -3,17 +3,18 @@ import requests
 import feedparser
 from llama_index.core.tools import FunctionTool
 
-def fetch_news(source: str) -> List:
+def fetch_news(source: str, keyword: str = None) -> List:
     """
-    Fetches news articles from a specific source using RSS feeds.
+    Fetches recent news articles from a specific source using RSS feeds.
     
     Args:
         source (str): Must be one of: "GMA", "Philippine Daily Inquirer", 
                      "Manila Bulletin", "ABS-CBN", "Rappler", "Philstar", 
                      "Manila Times", "BusinessWorld", "The Daily Tribune"
+        keyword (str, optional): Filter articles by keyword. Defaults to None.
 
     Returns:
-        List of news articles from the specified source.
+        List of recent news articles from the specified source.
     """
     rss_urls = {
         "GMA": "https://data.gmanetwork.com/gno/rss/news/feed.xml",
@@ -35,12 +36,21 @@ def fetch_news(source: str) -> List:
     response = requests.get(url, headers=headers)
     if response.status_code == 200:
         # Parse RSS feed
+        print(url)
         feed = feedparser.parse(response.content)
-        return feed.entries
+        entries = feed.entries
+        if keyword:
+            keyword = keyword.lower()
+            entries = [
+                entry for entry in entries 
+                if keyword in entry.title.lower() or 
+                keyword in entry.summary.lower()
+            ]
+        return entries
     else:
         return []
 
 
 news_tool = FunctionTool.from_defaults(fn=fetch_news)
 
-# print(fetch_news("The Daily Tribune")) # Uncomment to test the tool manually
+print(fetch_news("The Daily Tribune", "gma")) # Uncomment to test the tool manually
