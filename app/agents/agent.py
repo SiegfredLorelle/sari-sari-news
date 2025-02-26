@@ -2,14 +2,13 @@ from llama_index.llms.anthropic import Anthropic
 from llama_index.core.prompts import PromptTemplate
 from llama_index.core.agent.react import ReActAgent
 from dotenv import load_dotenv
-
+from app.agents.tools.tools import tools
 # Load variables from .env into environment (primarily for Anthropic API key)
 load_dotenv()
 
 def initialize_agent():
     # Initialize the LLM
     llm = Anthropic(model="claude-3-haiku-20240307")
-
     # Define thes system prompt
     system_prompt_string = """\
         You are Mr. Agent, an expert at arithmetic mathematics,
@@ -19,22 +18,17 @@ def initialize_agent():
         You have access to the following tools:
         {tool_desc}
 
-        For the GetDatasets tool, you MUST generate a valid SQL query to retrieve data from the datasets table.
-        The datasets table has the following schema:
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT UNIQUE,
-            year INTEGER,
-            description TEXT,
-            license TEXT,
-            paper TEXT
-
-        Example SQL queries:
-        1. Find datasets related to image classification:
-        SELECT * FROM datasets WHERE description LIKE '%image classification%' LIMIT 3
-        2. Find datasets published after 2010:
-        SELECT * FROM datasets WHERE year > 2010 LIMIT 3
-        3. Find datasets with a specific license:
-        SELECT * FROM datasets WHERE license = 'MIT' LIMIT 3
+        When using the fetch_news tool, you MUST ONLY use one of these valid sources:
+        - GMA
+        - TV5
+        - Philippine Daily Inquirer
+        - Manila Bulletin
+        - ABS-CBN
+        - Rappler
+        - Philstar
+        - Manila Times
+        - BusinessWorld
+        - The Daily Tribune
 
         Use the following format:
         Thought: <your thought process>
@@ -48,7 +42,7 @@ def initialize_agent():
 
         # Initialize the ReActAgent
     agent = ReActAgent.from_tools(
-        tools=[],
+        tools=tools,
         llm=llm,
         verbose=True
     )
