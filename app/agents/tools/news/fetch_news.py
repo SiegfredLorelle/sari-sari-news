@@ -5,15 +5,18 @@ from llama_index.core.tools import FunctionTool
 from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 
-def fetch_rss_news(source: str, keyword: str = None) -> List:
+def fetch_rss_news(source: str) -> List:
     """
     Fetches recent news articles from a specific source using RSS feeds.
+
+    Usage:
+    - Use only when user explicitly mentions a specific source
+    - Example: "News from GMA about politics"
     
     Args:
         source (str): Must be one of: "GMA", "Philippine Daily Inquirer", 
                      "Manila Bulletin", "ABS-CBN", "Rappler", "Philstar", 
                      "Manila Times", "BusinessWorld", "The Daily Tribune"
-        keyword (str, optional): Filter articles by keyword. Defaults to None.
 
     Returns:
         List of recent news articles from the specified source.
@@ -38,7 +41,6 @@ def fetch_rss_news(source: str, keyword: str = None) -> List:
     response = requests.get(url, headers=headers)
     if response.status_code == 200:
         # Parse RSS feed
-        print(url)
         feed = feedparser.parse(response.content)
         return feed.entries
     else:
@@ -60,7 +62,6 @@ def fetch_news_with_embeddings(source: str, query: str = None, similarity_thresh
     """
     # Fetch articles from RSS
     articles = fetch_rss_news(source)
-    print(articles)
     if not query or not articles:
         return articles
     
@@ -76,7 +77,6 @@ def fetch_news_with_embeddings(source: str, query: str = None, similarity_thresh
     # Filter and sort articles by similarity
     filtered_articles = []
     for idx, article in enumerate(articles):
-        print(similarities[idx])
         if similarities[idx] >= similarity_threshold:
             article.similarity = similarities[idx]  # Attach similarity score
             filtered_articles.append(article)
@@ -85,8 +85,56 @@ def fetch_news_with_embeddings(source: str, query: str = None, similarity_thresh
     filtered_articles.sort(key=lambda x: x.similarity, reverse=True)
     return filtered_articles
 
-get_latest_news_tool = FunctionTool.from_defaults(fn=fetch_rss_news)
-search_latest_news_tool = FunctionTool.from_defaults(fn=fetch_news_with_embeddings)
+def fetch_all_news(query: str, similarity_threshold: float = 0.25) -> List:
+    """
+    Fetches news from ALL valid sources and filters by semantic similarity.
+    
+    Args:
+        query (str, optional): General query to match against all articles.
+        similarity_threshold (float): Lower threshold for broader queries.
+    
+    Returns:
+        List of articles from all sources, sorted by relevance.
+    """
+    all_articles = []
+    sources = [
+        "GMA", "Daily Inquirer", "Manila Bulletin", 
+        "ABS-CBN", "Rappler", "Philstar", 
+        "Manila Times", "BusinessWorld", "The Daily Tribune"
+    ]
+    
+    for source in sources:
+        if query:
+            articles = fetch_news_with_embeddings(source, query, similarity_threshold)
+        else:
+            articles = fetch_rss_news(source)
+        all_articles.extend(articles)
+    
+    # Deduplicate articles
+    seen = set()
+    unique_articles = []
+    for article in all_articles:
+        identifier = f"{article.title}-{article.link}"
+        if identifier not in seen:
+            seen.add(identifier)
+            unique_articles.append(article)
+    
+    return unique_articles
 
+get_latest_specific_news_tool = FunctionTool.from_defaults(
+    fn=fetch_rss_news,
+    name="GetLatestSpecificNews",
+    description="Useful for getting news on explicitly mentioned specific source"
+    )
+search_latest_news_tool = FunctionTool.from_defaults(
+    fn=fetch_news_with_embeddings,
+    name="SearchLatestNews",
+    description="Useful for searching for relatively new specific news"
+    )
+get_latest_general_news_tool = FunctionTool.from_defaults(
+    fn=fetch_all_news,
+    name="GetLatestGeneralNews",
+    description="Useful for broad requests without specific sources"
+    )
 # print(fetch_rss_news("The Daily Tribune", "gma")) # Uncomment to test the tool manually
 # print(fetch_news_with_embeddings("The Daily Tribune", "Japan")) # Uncomment to test the tool manually
