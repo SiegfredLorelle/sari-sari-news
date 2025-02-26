@@ -1,5 +1,9 @@
 llama_index
 llama-index-llms-anthropic
+llama-index-vector-stores-chroma
 streamlit
 feedparser
 sentence-transformers
+llama-index-embeddings-huggingface
+llama-index-embeddings-instructor
+playwright
