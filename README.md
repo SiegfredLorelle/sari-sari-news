@@ -35,6 +35,16 @@ After activation, install the required packages using:
 pip install -r requirements.txt
 ```
 
+## Creating a `.env` File
+1. In the project root, create a file named `.env`.
+2. Add environment variables following the format in `.env.example`:
+
+## Running the Code Locally
+To run the application, use:
+```sh
+python -m app.app
+```
+
 ## Deactivating the Virtual Environment
 To exit the virtual environment, run:
 ```sh
