@@ -1,4 +1,5 @@
-from app.agents.tools.news.fetch_news import news_tool
+from app.agents.tools.news.fetch_news import get_latest_news_tool, search_latest_news_tool
 tools = [
-    news_tool,
+    get_latest_news_tool,
+    search_latest_news_tool
 ]
