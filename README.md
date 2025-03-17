@@ -1,5 +1,5 @@
-# News Insight
-> Extracting Answers from News with AI
+# SariSari News
+> Extracting Latest Philippine News with AI
 
 ## Prerequisites
 - Ensure you have Python 3.10 installed.
